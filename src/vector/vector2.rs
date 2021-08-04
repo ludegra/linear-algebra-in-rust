@@ -1,9 +1,10 @@
 use super::Vector;
 use super::{vector1::Vector1, vector3::Vector3, vector4::Vector4};
 use super::{FromVector1, FromVector2, FromVector3, FromVector4};
+use super::{ToVector1, ToVector2, ToVector3, ToVector4};
 use super::vector_iterator::Vector2Iterator;
 
-use std::ops::{Add, Sub, Mul, Rem};
+use std::ops::{Add, Sub, Mul, Rem, Index, IndexMut};
 use num_traits::Num;
 
 #[derive(Debug, Copy, Clone, PartialEq)]
@@ -25,6 +26,9 @@ impl<T> Vector2<T>
 impl<T> Vector<T> for Vector2<T> where T: Num + Copy {
     fn sum(&self) -> T {
         self.x + self.y
+    }
+    fn len(&self) -> usize {
+        2
     }
 }
 
@@ -90,6 +94,62 @@ impl<T> FromVector4<T> for Vector2<T>
         Self { 
             x: vec.x,
             y: vec.y
+        }
+    }
+}
+
+impl<T> ToVector1<T> for Vector2<T>
+    where T: Num + Copy
+{
+    /// Returns a 1D vector with the same elements
+    /// 
+    /// As a 1D vector has less elements than a 2D vector, the following elements will be lost:
+    /// - y-value
+    fn to_vec_1(self) -> Vector1<T> {
+        Vector1::<T> {
+            x: self.x,
+        }
+    }
+}
+impl<T> ToVector2<T> for Vector2<T>
+where T: Num + Copy
+{
+/// Returns self
+fn to_vec_2(self) -> Self {
+    self
+}
+}
+impl<T> ToVector3<T> for Vector2<T>
+    where T: Num + Copy
+{
+    /// Returns a 3D vector with the same elements
+    /// 
+    /// As a 3D vector has more elements than a 2D vector, the following elements will default to zero:
+    /// - z-value
+    fn to_vec_3(self) -> Vector3<T> {
+        let zero = self.x - self.x;
+        Vector3::<T> {
+            x: self.x,
+            y: self.y,
+            z: zero
+        }
+    }
+}
+impl<T> ToVector4<T> for Vector2<T>
+    where T: Num + Copy
+{
+    /// Returns a 4D vector with the same elements
+    /// 
+    /// As a 4D vector has more elements than a 2D vector, the following elements will default to zero:
+    /// - z-value
+    /// - w-value
+    fn to_vec_4(self) -> Vector4<T> {
+        let zero = self.x - self.x;
+        Vector4::<T> {
+            x: self.x,
+            y: self.y,
+            z: zero,
+            w: zero
         }
     }
 }
@@ -251,6 +311,39 @@ impl<T> Rem for Vector2<T>
             x: self.x - self.x,
             y: self.y - self.y,
             z: (self.x * other.y) - (self.y * other.x)
+        }
+    }
+}
+
+impl<T> Index<usize> for Vector2<T>
+    where T: Num + Copy
+{
+    type Output = T;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        if index == 0 {
+            &self.x
+        }
+        else if index == 1 {
+            &self.y
+        }
+        else {
+            panic!("Index out of bounds");
+        }
+    }
+}
+impl<T> IndexMut<usize> for Vector2<T>
+    where T: Num + Copy
+{
+    fn index_mut(&mut self, index: usize) -> &mut Self::Output {
+        if index == 0 {
+            &mut self.x
+        }
+        else if index == 1 {
+            &mut self.y
+        }
+        else {
+            panic!("Index out of bounds");
         }
     }
 }
