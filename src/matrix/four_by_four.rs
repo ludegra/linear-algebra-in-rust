@@ -14,33 +14,6 @@ impl<T> FourByFourMatrix<T>
     pub fn new(values: [[T; 4]; 4]) -> Self {
         Self { values }
     }
-    pub fn identity_matrix_float32() -> FourByFourMatrix<f32> {
-        let values: [[f32; 4]; 4] = [
-            [1.0, 0.0, 0.0, 0.0], 
-            [0.0, 1.0, 0.0, 0.0],
-            [0.0, 0.0, 1.0, 0.0],
-            [0.0, 0.0, 0.0, 1.0]
-        ];
-        FourByFourMatrix::<f32> { values }
-    }
-    pub fn identity_matrix_int32() -> FourByFourMatrix<i32> {
-        let values: [[i32; 4]; 4] = [
-            [1, 0, 0, 0], 
-            [0, 1, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ];
-        FourByFourMatrix::<i32> { values }
-    }
-    pub fn identity_matrix_uint32() -> FourByFourMatrix<u32> {
-        let values: [[u32; 4]; 4] = [
-            [1, 0, 0, 0], 
-            [0, 1, 0, 0],
-            [0, 0, 1, 0],
-            [0, 0, 0, 1]
-        ];
-        FourByFourMatrix::<u32> { values }
-    }
     pub fn as_vectors_rows(&self) -> Vec<Vector4<T>> {
         let mut result = Vec::new();
         for row in &self.values {
@@ -55,6 +28,39 @@ impl<T> FourByFourMatrix<T>
             result.push(Vector4::new(values[0][i], values[1][i], values[2][i], values[3][i]))
         }
         result
+    }
+}
+impl FourByFourMatrix<i32> {
+    pub fn identity_matrix_int32() -> FourByFourMatrix<i32> {
+        let values: [[i32; 4]; 4] = [
+            [1, 0, 0, 0], 
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ];
+        FourByFourMatrix::<i32> { values }
+    }
+}
+impl FourByFourMatrix<u32> {
+    pub fn identity_matrix_uint32() -> FourByFourMatrix<u32> {
+        let values: [[u32; 4]; 4] = [
+            [1, 0, 0, 0], 
+            [0, 1, 0, 0],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ];
+        FourByFourMatrix::<u32> { values }
+    }
+}
+impl FourByFourMatrix<f32> {
+    pub fn identity_matrix_float32() -> FourByFourMatrix<f32> {
+        let values: [[f32; 4]; 4] = [
+            [1.0, 0.0, 0.0, 0.0], 
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        ];
+        FourByFourMatrix::<f32> { values }
     }
 }
 
@@ -115,5 +121,22 @@ impl<T> Mul<FourByFourMatrix<T>> for FourByFourMatrix<T>
            [(rows1[3] * collumns2[0]).sum(), (rows1[3] * collumns2[1]).sum(), (rows1[3] * collumns2[2]).sum(), (rows1[3] * collumns2[3]).sum()],
        ];
        FourByFourMatrix { values: result }
+    }
+}
+impl<T> Mul<Vector4<T> > for FourByFourMatrix<T>
+    where T: Num + Copy
+{
+    type Output = Vector4<T>;
+
+    fn mul(self, other: Vector4<T>) -> Vector4<T> {
+        let rows = self.as_vectors_rows();
+        
+        let result: Vector4<T> = Vector4::new(
+            (rows[0] * other).sum(),
+            (rows[1] * other).sum(),
+            (rows[2] * other).sum(),
+            (rows[3] * other).sum(),
+        );
+        result
     }
 }
