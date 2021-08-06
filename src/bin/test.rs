@@ -1,5 +1,5 @@
-use linear_algebra::vector::{Vector, vector1::Vector1, vector2::Vector2, vector3::Vector3, vector4::Vector4};
-use linear_algebra::matrix::{Matrix, matrix4::Matrix4};
+use linear_algebra::vector::{vector4::Vector4};
+use linear_algebra::matrix::{matrix4::Matrix4};
 use linear_algebra::Axis;
 
 use std::f32::consts::PI;
