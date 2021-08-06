@@ -1,6 +1,7 @@
 use super::Matrix;
-use crate::vector::{Vector, vector1::Vector1, vector2::Vector2, vector3::Vector3, vector4::Vector4};
+use crate::vector::{Vector, vector4::Vector4};
 use crate::vector::{ToVector3};
+use crate::Axis;
 
 use num_traits::Num;
 use std::ops::{Add, Mul, Sub, Index, IndexMut};
@@ -37,6 +38,7 @@ impl<T> Matrix4<T>
     }
 }
 impl Matrix4<i32> {
+    /// Returns a 4x4 identity matrix
     pub fn identity_matrix() -> Matrix4<i32> {
         let values: [[i32; 4]; 4] = [
             [1, 0, 0, 0], 
@@ -46,6 +48,7 @@ impl Matrix4<i32> {
         ];
         Matrix4::<i32> { values }
     }
+    /// Returns a 4x4 translation matrix from the given vector
     pub fn translate<V: ToVector3<i32>>(vector: V) -> Self {
         let mut matrix = Self::identity_matrix();
         let vector = vector.to_vec_3();
@@ -56,6 +59,7 @@ impl Matrix4<i32> {
     }
 }
 impl Matrix4<u32> {
+    /// Returns a 4x4 identity matrix
     pub fn identity_matrix() -> Matrix4<u32> {
         let values: [[u32; 4]; 4] = [
             [1, 0, 0, 0], 
@@ -65,6 +69,7 @@ impl Matrix4<u32> {
         ];
         Matrix4::<u32> { values }
     }
+    /// Returns a 4x4 translation matrix from the given vector
     pub fn translate<V: ToVector3<u32>>(vector: V) -> Self {
         let mut matrix = Self::identity_matrix();
         let vector = vector.to_vec_3();
@@ -75,6 +80,7 @@ impl Matrix4<u32> {
     }
 }
 impl Matrix4<f32> {
+    /// Returns a 4x4 identity matrix
     pub fn identity_matrix() -> Matrix4<f32> {
         let values: [[f32; 4]; 4] = [
             [1.0, 0.0, 0.0, 0.0], 
@@ -84,6 +90,7 @@ impl Matrix4<f32> {
         ];
         Matrix4::<f32> { values }
     }
+    /// Returns a 4x4 translation matrix from the given vector
     pub fn translate<V: ToVector3<f32>>(vector: V) -> Self {
         let mut matrix = Self::identity_matrix();
         let vector = vector.to_vec_3();
@@ -91,6 +98,43 @@ impl Matrix4<f32> {
             matrix[[3, i]] = vector[i];
         }
         matrix
+    }
+    /// Returns a 4x4 rotation matrix
+    /// 
+    /// axis: axis around witch the rotation takes place
+    /// degrees: degrees for rotation in radians
+    pub fn rotation(axis: Axis, degrees: f32) -> Self {
+        let (cos, sin) = (degrees.cos(), degrees.sin());
+        let values = match axis {
+            Axis::X => {
+                let matrix: [[f32; 4]; 4] = [
+                    [1.0, 0.0, 0.0, 0.0],
+                    [0.0, cos, -sin, 0.0],
+                    [0.0, sin, cos, 0.0],
+                    [0.0, 0.0, 0.0, 1.0]
+                ];
+                matrix
+            }
+            Axis::Y => {
+                let matrix: [[f32; 4]; 4] = [
+                    [cos, 0.0, sin, 0.0], 
+                    [0.0, 1.0, 0.0, 0.0],
+                    [-sin, 0.0, cos, 0.0],
+                    [0.0, 0.0, 0.0, 1.0]
+                ];
+                matrix
+            }
+            Axis::Z => {
+                let matrix: [[f32; 4]; 4] = [
+                    [cos, -sin, 0.0, 0.0],
+                    [sin, cos, 0.0, 0.0],
+                    [0.0, 0.0, 1.0, 0.0],
+                    [0.0, 0.0, 0.0, 1.0]
+                ];
+                matrix
+            }
+        };
+        Self { values }
     }
 }
 
