@@ -1,5 +1,5 @@
 [package]
-name = "linear_algebra_in_rust"
+name = "linear_algebra"
 version = "0.1.0"
 authors = ["Ludwig Granstedt <ludwiggranstedt@gmail.com>"]
 edition = "2018"
