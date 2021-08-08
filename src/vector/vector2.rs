@@ -1,5 +1,5 @@
 use super::Vector;
-use super::{vector1::Vector1, vector3::Vector3, vector4::Vector4};
+use super::{Vector1, Vector3, Vector4};
 use super::{FromVector1, FromVector2, FromVector3, FromVector4};
 use super::{ToVector1, ToVector2, ToVector3, ToVector4};
 use super::vector_iterator::Vector2Iterator;
@@ -7,13 +7,7 @@ use super::vector_iterator::Vector2Iterator;
 use std::ops::{Add, Sub, Mul, Rem, Index, IndexMut};
 use num_traits::Num;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Vector2<T>
-    where T: Num + Copy
-{
-    pub x: T,
-    pub y: T,
-}
+use super::Vector2;
 
 impl<T> Vector2<T>
     where T: Num + Copy

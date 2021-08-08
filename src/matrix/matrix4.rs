@@ -1,15 +1,13 @@
 use super::Matrix;
-use crate::vector::{Vector, vector4::Vector4};
+use crate::vector::{Vector, Vector4};
 use crate::vector::{ToVector3};
 use crate::Axis;
 
 use num_traits::Num;
 use std::ops::{Add, Mul, Sub, Index, IndexMut};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub struct Matrix4<T: Num + Copy> {
-    pub values: [[T; 4]; 4]
-}
+use super::Matrix4;
+
 impl<T> Matrix4<T>
     where T: Num + Copy
 {

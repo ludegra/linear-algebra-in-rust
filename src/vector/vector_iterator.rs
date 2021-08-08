@@ -1,4 +1,4 @@
-use super::{vector1::Vector1, vector2::Vector2, vector3::Vector3, vector4::Vector4};
+use super::{Vector1, Vector2, Vector3, Vector4};
 
 use num_traits::Num;
 

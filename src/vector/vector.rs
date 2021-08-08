@@ -1,13 +1,8 @@
-pub mod vector1;
-pub mod vector2;
-pub mod vector3;
-pub mod vector4;
+mod vector1;
+mod vector2;
+mod vector3;
+mod vector4;
 pub mod vector_iterator;
-
-use vector1::Vector1;
-use vector2::Vector2;
-use vector3::Vector3;
-use vector4::Vector4;
 
 use num_traits::Num;
 
@@ -16,6 +11,40 @@ pub trait Vector<T>
 {
     fn sum(&self) -> T;
     fn len(&self) -> usize;
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Vector1<T>
+    where T: Num + Copy
+{
+    pub x: T
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Vector2<T>
+    where T: Num + Copy
+{
+    pub x: T,
+    pub y: T,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Vector3<T>
+    where T: Num + Copy
+{
+    pub x: T,
+    pub y: T,
+    pub z: T,
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub struct Vector4<T>
+    where T: Num + Copy
+{
+    pub x: T,
+    pub y: T,
+    pub z: T,
+    pub w: T,
 }
 
 pub trait FromVector1<T>
