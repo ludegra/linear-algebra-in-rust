@@ -5,9 +5,6 @@ pub mod vector;
 pub mod matrix;
 
 pub mod angles;
+pub mod coords;
 
-pub enum Axis {
-    X,
-    Y,
-    Z
-}
+mod utils;

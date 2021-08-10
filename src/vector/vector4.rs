@@ -26,15 +26,28 @@ impl<T> Vector<T> for Vector4<T> where T: Num + Copy {
         4
     }
 }
+impl Vector4<f32> {
+    pub fn magnitude(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
+    }
+    pub fn normalize(&self) -> Self {
+        let mut output = self.clone();
+        let magnitude = self.magnitude();
+        for mut value in output {
+            value /= magnitude
+        }
+        output
+    }
+}
 
-impl<T> IntoIterator for Vector4<T>
+impl<'a, T> IntoIterator for Vector4<T>
     where T: Num + Copy
 {
     type Item = T;
-    type IntoIter = Vector4Iterator<T>;
+    type IntoIter = Vector4Iterator<'a, T>;
 
-    fn into_iter(self) -> Vector4Iterator<T> {
-        Vector4Iterator::new(self)
+    fn into_iter(self) -> Vector4Iterator<'a, T> {
+        Vector4Iterator::new(&mut self)
     }
 }
 

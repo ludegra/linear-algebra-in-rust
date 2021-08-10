@@ -16,6 +16,11 @@ impl<T> Vector2<T>
         Self { x, y}
     }
 }
+impl Vector2<f32> {
+    pub fn magnitude(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2)).sqrt()
+    }
+}
 
 impl<T> Vector<T> for Vector2<T> where T: Num + Copy {
     fn sum(&self) -> T {

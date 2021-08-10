@@ -1,10 +1,11 @@
 use super::Matrix;
-use crate::vector::{Vector, Vector4};
+use crate::vector::{Vector, Vector3, Vector4};
 use crate::vector::{ToVector3};
-use crate::Axis;
+use crate::utils::Pad;
 
 use num_traits::Num;
 use std::ops::{Add, Mul, Sub, Index, IndexMut};
+use std::fmt::{Display, Formatter};
 
 use super::Matrix4;
 
@@ -15,22 +16,20 @@ impl<T> Matrix4<T>
         Matrix4 { values }
     }
     pub fn as_vectors_rows(&self) -> [Vector4<T>; 4] {
-        let rows = &self.values;
         let result = [
-            Vector4::new(rows[0][0], rows[0][1], rows[0][2], rows[0][3]),
-            Vector4::new(rows[1][0], rows[1][1], rows[1][2], rows[1][3]),
-            Vector4::new(rows[2][0], rows[2][1], rows[2][2], rows[2][3]),
-            Vector4::new(rows[3][0], rows[3][1], rows[3][2], rows[3][3]),
+            Vector4::new(self[[0, 0]], self[[1, 0]], self[[2, 0]], self[[3, 0]]),
+            Vector4::new(self[[0, 1]], self[[1, 1]], self[[2, 1]], self[[3, 1]]),
+            Vector4::new(self[[0, 2]], self[[1, 2]], self[[2, 2]], self[[3, 2]]),
+            Vector4::new(self[[0, 3]], self[[1, 3]], self[[2, 3]], self[[3, 3]]),
         ];
         result
     }
     pub fn as_vectors_collumns(&self) -> [Vector4<T>; 4] {
-        let rows = self.values;
         let result = [
-            Vector4::new(rows[0][0], rows[1][0], rows[2][0], rows[3][0]),
-            Vector4::new(rows[0][1], rows[1][1], rows[2][1], rows[3][1]),
-            Vector4::new(rows[0][2], rows[1][2], rows[2][2], rows[3][2]),
-            Vector4::new(rows[0][3], rows[1][3], rows[2][3], rows[3][3]),
+            Vector4::new(self[[0, 0]], self[[0, 1]], self[[0, 2]], self[[0, 3]]),
+            Vector4::new(self[[1, 0]], self[[1, 1]], self[[1, 2]], self[[1, 3]]),
+            Vector4::new(self[[2, 0]], self[[2, 1]], self[[2, 2]], self[[2, 3]]),
+            Vector4::new(self[[3, 0]], self[[3, 1]], self[[3, 2]], self[[3, 3]]),
         ];
         result
     }
@@ -47,7 +46,7 @@ impl Matrix4<i32> {
         Matrix4::<i32> { values }
     }
     /// Returns a 4x4 translation matrix from the given vector
-    pub fn translate<V: ToVector3<i32>>(vector: V) -> Self {
+    pub fn translation_matrix<V: ToVector3<i32>>(vector: V) -> Self {
         let mut matrix = Self::identity_matrix();
         let vector = vector.to_vec_3();
         for i in 0..3 {
@@ -68,7 +67,7 @@ impl Matrix4<u32> {
         Matrix4::<u32> { values }
     }
     /// Returns a 4x4 translation matrix from the given vector
-    pub fn translate<V: ToVector3<u32>>(vector: V) -> Self {
+    pub fn translation_matrix<V: ToVector3<u32>>(vector: V) -> Self {
         let mut matrix = Self::identity_matrix();
         let vector = vector.to_vec_3();
         for i in 0..3 {
@@ -89,7 +88,7 @@ impl Matrix4<f32> {
         Matrix4::<f32> { values }
     }
     /// Returns a 4x4 translation matrix from the given vector
-    pub fn translate<V: ToVector3<f32>>(vector: V) -> Self {
+    pub fn translation_matrix<V: ToVector3<f32>>(vector: V) -> Self {
         let mut matrix = Self::identity_matrix();
         let vector = vector.to_vec_3();
         for i in 0..3 {
@@ -101,48 +100,54 @@ impl Matrix4<f32> {
     /// 
     /// axis: axis around witch the rotation takes place
     /// degrees: degrees for rotation in radians
-    pub fn rotation(axis: Axis, degrees: f32) -> Self {
+    pub fn rotation_matrix(degrees: f32, u: Vector3<f32>) -> Self {
         let (cos, sin) = (degrees.cos(), degrees.sin());
-        let values = match axis {
-            Axis::X => {
-                let matrix: [[f32; 4]; 4] = [
-                    [1.0, 0.0, 0.0, 0.0],
-                    [0.0, cos, -sin, 0.0],
-                    [0.0, sin, cos, 0.0],
-                    [0.0, 0.0, 0.0, 1.0]
-                ];
-                matrix
+        
+        let mut values = [
+            [cos + u.x.powi(2) * (1.0 - cos), u.x * u.y * (1.0 - cos) - u.z * sin, u.x * u.z * (1.0 - cos) + u.y * sin, 0.0],
+            [u.y * u.x * (1.0 - cos) + u.z * sin, cos + u.y.powi(2) * (1.0 - cos), u.y * u.z * (1.0 - cos) - u.x * sin, 0.0],
+            [u.z * u.x * (1.0 - cos) - u.y * sin, u.z * u.y * (1.0 - cos) + u.x * sin, cos + u.z.powi(2) * (1.0 - cos), 0.0],
+            [0.0, 0.0, 0.0, 1.0]
+        ];
+
+        for row in values.iter_mut() {
+            for element in row.iter_mut() {
+                if *element < 0.01 {
+                    *element = 0.0;
+                }
+                else if *element > 0.99 {
+                    *element = 1.0;
+                } 
             }
-            Axis::Y => {
-                let matrix: [[f32; 4]; 4] = [
-                    [cos, 0.0, sin, 0.0], 
-                    [0.0, 1.0, 0.0, 0.0],
-                    [-sin, 0.0, cos, 0.0],
-                    [0.0, 0.0, 0.0, 1.0]
-                ];
-                matrix
-            }
-            Axis::Z => {
-                let matrix: [[f32; 4]; 4] = [
-                    [cos, -sin, 0.0, 0.0],
-                    [sin, cos, 0.0, 0.0],
-                    [0.0, 0.0, 1.0, 0.0],
-                    [0.0, 0.0, 0.0, 1.0]
-                ];
-                matrix
-            }
-        };
+        }
+
         Self { values }
+    }
+    pub fn scaling_matrix<V: ToVector3<f32>>(vector: V) -> Self {
+        let vector = vector.to_vec_3();
+        let mut output = Self::identity_matrix();
+
+        for i in 0..3 {
+            output[[i, i]] = vector[i];
+        }
+        output
+    }
+    pub fn translate<V>(self, vector: V) -> Self
+        where V: Vector<f32> + ToVector3<f32>
+    {
+        self * Self::translation_matrix(vector)
+    }
+    pub fn rotate(self, angle: f32, revultion_vector: Vector3<f32>) -> Self {
+        self * Self::rotation_matrix(angle, revultion_vector)
     }
 }
 
 impl<T> Matrix for Matrix4<T>
     where T: Num + Copy
 {
-    fn size(&self) -> [usize; 2] {
-        [4, 4]
-    }
+    const SIZE: [usize; 2] = [4, 4];
 }
+
 impl<T> Add for Matrix4<T>
     where T: Num + Copy
 {
@@ -195,8 +200,9 @@ impl<T> Mul<Matrix4<T>> for Matrix4<T>
        Matrix4 { values: result }
     }
 }
-impl<T> Mul<Vector4<T> > for Matrix4<T>
-    where T: Num + Copy
+impl<T> Mul<Vector4<T>> for Matrix4<T>
+where
+    T: Num + Copy
 {
     type Output = Vector4<T>;
 
@@ -226,5 +232,45 @@ impl<T> IndexMut<[usize; 2]> for Matrix4<T>
 {
     fn index_mut(&mut self, index: [usize; 2]) -> &mut Self::Output {
         &mut self.values[index[1]][index[0]]
+    }
+}
+
+impl<T> Display for Matrix4<T>
+where
+    T: Num + Copy + Display
+{
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let collumns = self.as_vectors_collumns();
+        let mut des_lenghts = [0; 4];
+
+        for i in 0..collumns.len() {
+            let mut longest = 0usize;
+
+            for element in collumns[i] {
+                let len = element.to_string().len();
+                if len > longest {
+                    longest = len;
+                }
+            }
+            des_lenghts[i] = longest;
+        }
+        let rows = self.as_vectors_rows();
+        let mut rows_strings = vec![String::new(); 4];
+
+        for i in 0..rows.len() {
+            for j in 0..rows[i].len() {
+                rows_strings[i].push_str(&format!("{} ", rows[i][j].to_string().pad_c(des_lenghts[j])))
+            }
+            rows_strings[i] = String::from(rows_strings[i].trim());
+        }
+
+        write!(
+            f,
+            "\n⎡{}⎤\n⎢{}⎥\n⎢{}⎥\n⎣{}⎦\n",
+            rows_strings[0],
+            rows_strings[1],
+            rows_strings[2],
+            rows_strings[3],
+        )
     }
 }

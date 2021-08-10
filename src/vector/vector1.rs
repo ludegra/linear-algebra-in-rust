@@ -16,6 +16,11 @@ impl<T> Vector1<T>
         Self { x }
     }
 }
+impl Vector1<f32> {
+    pub fn magnitude(&self) -> f32 {
+        self.x
+    }
+}
 
 impl<T> Vector<T> for Vector1<T> where T: Num + Copy {
     fn sum(&self) -> T {

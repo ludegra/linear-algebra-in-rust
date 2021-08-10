@@ -16,6 +16,11 @@ impl<T> Vector3<T>
         Self { x, y, z }
     }
 }
+impl Vector3<f32> {
+    pub fn magnitude(&self) -> f32 {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()
+    }
+}
 
 impl<T> Vector<T> for Vector3<T> where T: Num + Copy {
     fn sum(&self) -> T {

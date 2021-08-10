@@ -76,18 +76,18 @@ impl<T> Iterator for Vector2Iterator<T>
     }
 }
 
-pub struct Vector3Iterator<T>
+pub struct Vector3Iterator<'a, T>
     where T: Num + Copy
 {
-    values: [T; 3],
+    values: [&'a mut T; 3],
     count: usize,
 }
 
-impl<T> Vector3Iterator<T>
+impl<T> Vector3Iterator<'_, T>
     where T: Num + Copy
 {
     pub fn new(vector: Vector3<T>) -> Self {
-        let values = [vector.x, vector.y, vector.z];
+        let values = [&mut vector.x, &mut vector.y, &mut vector.z];
         Self {
             values,
             count: 0,
@@ -95,12 +95,12 @@ impl<T> Vector3Iterator<T>
     }
 }
 
-impl<T> Iterator for Vector3Iterator<T>
+impl<T> Iterator for Vector3Iterator<'_, T>
     where T: Num + Copy
 {
     type Item = T;
 
-    fn next(&mut self) -> Option<T> {
+    fn next(&mut self) -> Option<&mut T> {
         let result;
         if self.count < 3 {
             result = Some(self.values[self.count]);
@@ -113,18 +113,18 @@ impl<T> Iterator for Vector3Iterator<T>
     }
 }
 
-pub struct Vector4Iterator<T>
+pub struct Vector4Iterator<'a, T>
     where T: Num + Copy
 {
-    values: [T; 4],
+    values: [&'a mut T; 4],
     count: usize,
 }
 
-impl<T> Vector4Iterator<T>
+impl<'a, T> Vector4Iterator<'a, T>
     where T: Num + Copy
 {
-    pub fn new(vector: Vector4<T>) -> Self {
-        let values = [vector.x, vector.y, vector.z, vector.w];
+    pub fn new(vector: &'a mut Vector4<T>) -> Self {
+        let values = [&mut vector.x, &mut vector.y, &mut vector.z, &mut vector.w];
         Self {
             values,
             count: 0,
@@ -132,12 +132,12 @@ impl<T> Vector4Iterator<T>
     }
 }
 
-impl<T> Iterator for Vector4Iterator<T>
+impl<T> Iterator for Vector4Iterator<'_, T>
     where T: Num + Copy
 {
     type Item = T;
 
-    fn next(&mut self) -> Option<T> {
+    fn next(&mut self) -> Option<&mut T> {
         let result;
         if self.count < 4 {
             result = Some(self.values[self.count]);
