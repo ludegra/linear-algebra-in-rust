@@ -96,6 +96,12 @@ impl Matrix4<f32> {
         }
         matrix
     }
+    /// Returns self multiplied by a transformation matrix from the given vector
+    pub fn translate<V>(self, vector: V) -> Self
+        where V: Vector<f32> + ToVector3<f32>
+    {
+        self * Self::translation_matrix(vector)
+    }
     /// Returns a 4x4 rotation matrix
     /// 
     /// axis: axis around witch the rotation takes place
@@ -123,6 +129,13 @@ impl Matrix4<f32> {
 
         Self { values }
     }
+    /// Returns self multiplied by a rotation vector with a rotation of the given angle around the given vector.
+    /// 
+    /// axis: axis around witch the rotation takes place
+    /// degrees: degrees for rotation in radians
+    pub fn rotate(self, angle: f32, revultion_vector: Vector3<f32>) -> Self {
+        self * Self::rotation_matrix(angle, revultion_vector)
+    }
     pub fn scaling_matrix<V: ToVector3<f32>>(vector: V) -> Self {
         let vector = vector.to_vec_3();
         let mut output = Self::identity_matrix();
@@ -132,13 +145,8 @@ impl Matrix4<f32> {
         }
         output
     }
-    pub fn translate<V>(self, vector: V) -> Self
-        where V: Vector<f32> + ToVector3<f32>
-    {
-        self * Self::translation_matrix(vector)
-    }
-    pub fn rotate(self, angle: f32, revultion_vector: Vector3<f32>) -> Self {
-        self * Self::rotation_matrix(angle, revultion_vector)
+    pub fn scale<V: ToVector3<f32>>(self, vector: V) -> Self {
+        self * Self::scaling_matrix(vector)
     }
 }
 

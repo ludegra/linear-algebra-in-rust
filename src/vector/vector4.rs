@@ -3,9 +3,12 @@ use super::{Vector1, Vector2, Vector3};
 use super::{FromVector1, FromVector2, FromVector3, FromVector4};
 use super::{ToVector1, ToVector2, ToVector3, ToVector4};
 use super::vector_iterator::Vector4Iterator;
+use crate::utils::Pad;
 
 use std::ops::{Add, Sub, Mul, Index, IndexMut};
 use std::iter::IntoIterator;
+use std::fmt::{Display, Formatter};
+
 use num_traits::Num;
 
 use super::Vector4;
@@ -27,27 +30,29 @@ impl<T> Vector<T> for Vector4<T> where T: Num + Copy {
     }
 }
 impl Vector4<f32> {
+    pub fn zero() -> Self {
+        Self { x: 0.0, y: 0.0, z: 0.0, w: 0.0 }
+    }
     pub fn magnitude(&self) -> f32 {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2) + self.w.powi(2)).sqrt()
     }
-    pub fn normalize(&self) -> Self {
-        let mut output = self.clone();
+    pub fn normalize(&mut self) {
         let magnitude = self.magnitude();
-        for mut value in output {
-            value /= magnitude
+        for i in 0..self.len() {
+            self[i] /= magnitude;
         }
-        output
+        
     }
 }
 
-impl<'a, T> IntoIterator for Vector4<T>
+impl<T> IntoIterator for Vector4<T>
     where T: Num + Copy
 {
     type Item = T;
-    type IntoIter = Vector4Iterator<'a, T>;
+    type IntoIter = Vector4Iterator<T>;
 
-    fn into_iter(self) -> Vector4Iterator<'a, T> {
-        Vector4Iterator::new(&mut self)
+    fn into_iter(self) -> Vector4Iterator<T> {
+        Vector4Iterator::new(&self)
     }
 }
 
@@ -372,5 +377,31 @@ impl<T> IndexMut<usize> for Vector4<T>
         else {
             panic!("Index out of bounds");
         }
+    }
+}
+
+impl Display for Vector4<f32> {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        let mut output = vec![String::new(); 4];
+        let mut longest = 0;
+
+        for i in 0..4 {
+            let value = (self[i] * 100.).floor() / 100.;
+            let as_string = value.to_string();
+
+            if as_string.len() > longest {
+                longest = as_string.len()
+            }
+
+            output[i] = as_string;
+        }
+        for i in 0..4 {
+            if output[i].len() < longest {
+                let padded = output[i].pad_c(longest).clone();
+                output[i] = padded;
+            }
+        }
+
+        write!(f, "⎛{}⎞\n⎜{}⎟\n⎜{}⎟\n⎝{}⎠\n", output[0], output[1], output[2], output[3])
     }
 }
